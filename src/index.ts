@@ -1,6 +1,6 @@
 import TelegramBot from 'node-telegram-bot-api';
 
-import { generateImage } from './utils';
+import { formatName, generateImage } from './utils';
 
 if (!process.env.BOT_TOKEN) {
   console.error(
@@ -12,19 +12,28 @@ if (!process.env.BOT_TOKEN) {
 const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
 
 bot.onText(
-  /\/quote (.+)/,
-  async ({ chat: { id }, from: { first_name, last_name } = {} }, match) => {
+  /\/quote(?:@GenQuoteBot)?\s*(.*)/,
+  async (
+    {
+      chat: { id },
+      reply_to_message: { text = '', from: replyFrom } = {},
+      from,
+    },
+    match,
+  ) => {
     const [, query] = match || [];
 
-    if (!query.trim()) {
+    const quoteText = text.trim() || query.trim();
+
+    if (!quoteText) {
       return;
     }
 
     await bot.sendChatAction(id, 'upload_photo');
 
     const image = await generateImage(
-      query.trim(),
-      `${first_name}${last_name ? ` ${last_name}` : ''}`,
+      quoteText,
+      formatName(text.trim() ? replyFrom! : from!),
     );
 
     console.info('Sending image...');

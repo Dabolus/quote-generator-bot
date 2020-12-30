@@ -1,4 +1,5 @@
 import puppeteer from 'puppeteer';
+import { User } from 'node-telegram-bot-api';
 
 export const quoteWidth = 960;
 export const quoteHeight = 1280;
@@ -78,7 +79,7 @@ export const colors = ['#65da88', '#e7af59', '#47a2ba'];
 export const getRandomColor = () => getRandomArrayElement(colors);
 
 export const generateImage = async (query: string, author: string) => {
-  console.info(`Received query "${query}", opening browser...`);
+  console.info(`Received query "${query}"`);
 
   const browser = await browserPromise;
   const page = await browser.newPage();
@@ -168,3 +169,6 @@ export const generateImage = async (query: string, author: string) => {
 
   return image;
 };
+
+export const formatName = ({ first_name, last_name }: User) =>
+  `${first_name}${last_name ? ` ${last_name}` : ''}`;
