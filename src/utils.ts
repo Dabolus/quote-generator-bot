@@ -131,6 +131,11 @@ export const generateImage = async (query: string, author: string) => {
             strong {
               font-style: ${Math.random() < 0.8 ? 'normal' : 'italic'};
               font-weight: ${Math.random() < 0.8 ? 'normal' : 'bold'};
+              font-size: ${
+                Math.random() < 0.8
+                  ? '1rem'
+                  : `${(1 + Math.random() / 4).toFixed(2)}rem`
+              };
               font-family: '${highlightFont}';
             }
             #author {
