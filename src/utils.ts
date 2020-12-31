@@ -90,7 +90,7 @@ export const generateImage = async (query: string, author: string) => {
   const quoteFont = getRandomFont();
   const authorFont = getRandomFont();
   const highlightFont =
-    Math.random() < 0.75 ? quoteFont : getRandomFont('fancy');
+    Math.random() < 0.8 ? quoteFont : getRandomFont('fancy');
 
   await page.setContent(
     `
@@ -126,11 +126,11 @@ export const generateImage = async (query: string, author: string) => {
             #quote {
               font-family: '${quoteFont}';
               font-size: 96px;
-              font-variant: ${Math.random() < 0.75 ? 'normal' : 'small-caps'};
+              font-variant: ${Math.random() < 0.8 ? 'normal' : 'small-caps'};
             }
             strong {
-              font-style: ${Math.random() < 0.75 ? 'normal' : 'italic'};
-              font-weight: ${Math.random() < 0.75 ? 'normal' : 'bold'};
+              font-style: ${Math.random() < 0.8 ? 'normal' : 'italic'};
+              font-weight: ${Math.random() < 0.8 ? 'normal' : 'bold'};
               font-family: '${highlightFont}';
             }
             #author {
