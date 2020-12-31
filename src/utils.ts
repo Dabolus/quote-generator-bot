@@ -126,6 +126,7 @@ export const generateImage = async (query: string, author: string) => {
             #quote {
               font-family: '${quoteFont}';
               font-size: 96px;
+              font-variant: ${Math.random() < 0.75 ? 'normal' : 'small-caps'};
             }
             strong {
               font-style: ${Math.random() < 0.75 ? 'normal' : 'italic'};
