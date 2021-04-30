@@ -116,3 +116,105 @@ export const generateImage = async (query: string, author: string) => {
 
 export const formatName = ({ first_name, last_name }: User) =>
   `${first_name}${last_name ? ` ${last_name}` : ''}`;
+
+export const emojiToCodePoint = (emoji: string): number[] => {
+  if (emoji.length === 1) {
+    return [emoji.charCodeAt(0)];
+  } else if (emoji.length > 1) {
+    const pairs = [];
+    for (var i = 0; i < emoji.length; i++) {
+      if (
+        // high surrogate
+        emoji.charCodeAt(i) >= 0xd800 &&
+        emoji.charCodeAt(i) <= 0xdbff
+      ) {
+        if (
+          emoji.charCodeAt(i + 1) >= 0xdc00 &&
+          emoji.charCodeAt(i + 1) <= 0xdfff
+        ) {
+          // low surrogate
+          pairs.push(
+            (emoji.charCodeAt(i) - 0xd800) * 0x400 +
+              (emoji.charCodeAt(i + 1) - 0xdc00) +
+              0x10000,
+          );
+        }
+      } else if (emoji.charCodeAt(i) < 0xd800 || emoji.charCodeAt(i) > 0xdfff) {
+        // modifiers and joiners
+        pairs.push(emoji.charCodeAt(i));
+      }
+    }
+    return pairs;
+  }
+
+  return [];
+};
+
+export const chunk = <T = any>(array: T[], element: T): T[][] => {
+  const result: T[][] = [];
+  for (let i = 0; i < array.length; i++) {
+    const subarray: T[] = [];
+    while (i < array.length && array[i] !== element) {
+      subarray.push(array[i]);
+      i++;
+    }
+    result.push(subarray);
+  }
+  return result;
+};
+
+export const emojiToFileName = (emoji: string) => {
+  const emojiCodePoint = emojiToCodePoint(emoji);
+
+  const data = chunk(emojiCodePoint, 0x200d).map(emoji =>
+    emoji.reduce<{
+      point: string;
+      skin?: number;
+      sex?: string;
+    }>(
+      (acc, point) => {
+        if (point >= 0x1f3fb && point <= 0x1f3ff) {
+          return { ...acc, skin: point - 0x1f3fa };
+        }
+
+        if (point === 0x2640) {
+          return { ...acc, sex: 'W' };
+        }
+
+        if (point === 0x2642) {
+          return { ...acc, sex: 'M' };
+        }
+
+        return {
+          ...acc,
+          point: `u${point.toString(16).toUpperCase().padStart(4, '0')}`,
+        };
+      },
+      { point: '' },
+    ),
+  );
+
+  const joinedPoints = data.map(({ point }) => point).join('_');
+  const joinedSkins = data.map(({ skin }) => skin).join('');
+  const joinedSexes = data.map(({ sex }) => sex).join('');
+
+  const fileName = [
+    joinedPoints,
+    ...(joinedSkins.length > 0 ? [joinedSkins] : []),
+    ...(joinedSexes.length > 0 ? [joinedSexes] : []),
+    'webp',
+  ].join('.');
+
+  return fileName;
+};
+
+export const replaceEmojis = (str: string) =>
+  str.replace(
+    // This regex matches a combination of:
+    // - Extended pictographics (i.e. all the pictographic emojis without the character based ones)
+    // - Zero Width Joiner (u200d)
+    // - Regional indicator symbols (u1f1e6 to u1f1ff)
+    // - Skin modifiers (u1f3fb to u1f3ff)
+    /[\p{Extended_Pictographic}\u{200d}\u{1f1e6}-\u{1f1ff}\u{1f3fb}-\u{1f3ff}]+/gu,
+    emoji => `<img src="emojis/${emojiToFileName(emoji)}">`,
+  );

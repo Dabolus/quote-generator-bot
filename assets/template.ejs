@@ -50,12 +50,17 @@
       strong, #author {
         color: <%= getRandomColor() %>;
       }
+      img {
+        height: 1em;
+        margin-bottom: .25em;
+        vertical-align: middle;
+      }
     </style>
   </head>
   <body>
     <div>
       <p id="quote">
-        <%- highlight(sanitize(query)) %>
+        <%- replaceEmojis(highlight(sanitize(query))) %>
       </p>
       <p id="author">
         — <%= author %>
