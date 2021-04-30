@@ -1,5 +1,6 @@
 import TelegramBot from 'node-telegram-bot-api';
 
+import { startServer } from './server';
 import { formatName, generateImage } from './utils';
 
 if (!process.env.BOT_TOKEN) {
@@ -9,6 +10,7 @@ if (!process.env.BOT_TOKEN) {
   process.exit(1);
 }
 
+startServer();
 const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
 
 bot.onText(

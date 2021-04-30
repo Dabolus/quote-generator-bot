@@ -1,5 +1,10 @@
+import { URLSearchParams } from 'url';
+
 import puppeteer from 'puppeteer';
 import { User } from 'node-telegram-bot-api';
+
+export const host = 'localhost';
+export const port = 40736;
 
 export const quoteWidth = 960;
 export const quoteHeight = 1280;
@@ -9,7 +14,7 @@ export const browserPromise = puppeteer.launch({ headless: true });
 export const sanitize = (str: string) =>
   str.replace(
     /[&"'<>]/g,
-    (char) =>
+    char =>
       ({
         '&': '&amp;',
         '"': '&quot;',
@@ -20,7 +25,7 @@ export const sanitize = (str: string) =>
   );
 
 export const highlight = (str: string) =>
-  str.replace(/\w+/gi, (word) =>
+  str.replace(/\w+/gi, word =>
     /(?:[aei]r(?:e|ti|tel[aeio])|mai|sempre|comunque|d?ovunque|qualunque|issim[aeio])$/.test(
       word,
     )
@@ -87,78 +92,11 @@ export const generateImage = async (query: string, author: string) => {
 
   console.info('Generating page...');
 
-  const quoteFont = getRandomFont();
-  const authorFont = getRandomFont();
-  const highlightFont =
-    Math.random() < 0.8 ? quoteFont : getRandomFont('fancy');
-
-  await page.setContent(
-    `
-      <!doctype html>
-      <html>
-        <head>
-          <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=${quoteFont.replace(
-            / /g,
-            '+',
-          )}:400,b,i,bi|${authorFont.replace(/ /g, '+')}:400,b,i,bi">
-          <style>
-            * { box-sizing: border-box; }
-            html, body, div { width: 100%; height: 100%; margin: 0; padding: 0; }
-            body {
-              background: url('https://source.unsplash.com/${quoteWidth}x${quoteHeight}/?inspiring');
-            }
-            div {
-              display: flex;
-              flex-direction: column;
-              align-items: center;
-              justify-content: center;
-              background: linear-gradient(${
-                Math.random() < 0.5 ? 0 : 180
-              }deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.9) 100%);
-              gap: ${quoteWidth / 40}px;
-              padding: ${quoteWidth / 20}px;
-            }
-            p {
-              margin: 0;
-              color: #fff;
-              text-align: center;
-            }
-            #quote {
-              font-family: '${quoteFont}';
-              font-size: 96px;
-              font-variant: ${Math.random() < 0.8 ? 'normal' : 'small-caps'};
-            }
-            strong {
-              font-style: ${Math.random() < 0.8 ? 'normal' : 'italic'};
-              font-weight: ${Math.random() < 0.8 ? 'normal' : 'bold'};
-              font-size: ${
-                Math.random() < 0.8
-                  ? '1em'
-                  : `${(1 + Math.random() / 4).toFixed(2)}em`
-              };
-              font-family: '${highlightFont}';
-            }
-            #author {
-              font-family: '${authorFont}';
-              font-size: 90px;
-            }
-            strong, #author {
-              color: ${getRandomColor()};
-            }
-          </style>
-        </head>
-        <body>
-          <div>
-            <p id="quote">
-              ${highlight(sanitize(query))}
-            </p>
-            <p id="author">
-              — ${sanitize(author)}
-            </p>
-          </div>
-        </body>
-      </html>
-    `,
+  await page.goto(
+    `http://${host}:${port}?${new URLSearchParams({
+      query,
+      author,
+    }).toString()}`,
     { waitUntil: 'networkidle0' },
   );
 
