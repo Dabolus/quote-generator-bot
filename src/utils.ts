@@ -71,7 +71,7 @@ export const fonts = [...standardFonts, ...fancyFonts];
 export const getRandomFont = (style: 'all' | 'standard' | 'fancy' = 'all') => {
   const array =
     style === 'all' ? fonts : style === 'standard' ? standardFonts : fancyFonts;
-  return getRandomArrayElement(fonts);
+  return getRandomArrayElement(array);
 };
 
 export const colors = ['#65da88', '#e7af59', '#47a2ba'];
